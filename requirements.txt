@@ -1,0 +1,17 @@
+langchain
+langchain_openai 
+langchain_core
+langchain_huggingface
+python-dotenv
+streamlit
+langchain_community
+chromadb
+faiss-cpu
+faiss-gpu
+groq
+langchain-groq
+langchainhub
+sentence_transformers
+langchain-objectbox
+langchain-text-splitters
+ollama
