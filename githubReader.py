@@ -33,7 +33,7 @@ def clone_and_read_gitrepo(git_url):
     #                 'dockerignore', 'ipynb']
 
     # Initialize the dictionary to hold counts for each file extension
-    file_type_counts = defaultdict(int)
+    # file_type_counts = defaultdict(int)
 
     # # Iterate over the loaded data and count file extensions
     # for doc in data:
@@ -46,5 +46,5 @@ def clone_and_read_gitrepo(git_url):
     #     if ext in extensions:
     #         file_type_counts[ext] += 1  # Increment the count for the file extension
 
-    return data, dict(file_type_counts)
+    return data, repo_name
 

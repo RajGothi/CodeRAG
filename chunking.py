@@ -39,9 +39,11 @@ def code_chunking(documents):
     }
 
     chunked_docs = []
+    document_chunk_pair = []
 
     # Iterate over documents and apply chunking based on the file extension
     for doc in documents:
+        doc_chunk_map = {}
         file_path = doc.metadata['source']
         _, ext = os.path.splitext(file_path)
         ext = ext[1:]  # Remove the leading dot
@@ -65,10 +67,14 @@ def code_chunking(documents):
         # Split the document text into chunks
         text_chunks = splitter.create_documents([doc.page_content])
 
+        doc_chunk_map["document"] = doc.page_content
+        doc_chunk_map["chunks"] = text_chunks
+
         for split_doc in text_chunks:
             split_doc.metadata = doc.metadata
 
         chunked_docs.extend(text_chunks)
+        document_chunk_pair.append(doc_chunk_map)
 
-    return chunked_docs
+    return chunked_docs,document_chunk_pair
 

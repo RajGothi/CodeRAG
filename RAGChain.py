@@ -24,10 +24,23 @@ from langchain_community.retrievers import BM25Retriever
 
 from retriever import RAGException, retrieve_context, load_reranker_model
 from model import get_LLMModel
+from retriever import contextual_retieval_chunk
+import pickle
+import os
 
 class RAGPipeline:
 
-    def __init__(self, documents, embedding_name, model_name="llama"):
+    def __init__(self, documents, embedding_name, document_chunk_pair = None,model_name="llama",repo_name = 'chat-ui'):
+
+        #Here we have to add contextual Retrieval given an documents...
+        if document_chunk_pair is not None:
+            if os.path.exists(f'store/{repo_name}_retreival.pickle'):
+                print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
+                with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
+                    documents = pickle.load(f) 
+            else:
+                print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
+                documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
 
         embedding_model = self.get_embedding(embedding_name)
 
@@ -45,7 +58,7 @@ class RAGPipeline:
         self.bm25_retriever = BM25Retriever.from_documents(documents)
         self.bm25_retriever.k = 4  # Retrieve top 4 results
 
-        # print("type of bm25", type(self.bm25_retriever))
+        # # print("type of bm25", type(self.bm25_retriever))
 
         self.retriever = EnsembleRetriever(
             retrievers=[self.bm25_retriever, self.retriever], weights=[0.2, 0.8]

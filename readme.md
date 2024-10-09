@@ -57,7 +57,7 @@ streamlit run main.py -- --embedding_model "ollama" --LLM_model "llama3" --mode 
 ```
 
 <!-- - `-git_url`: URL of the GitHub repository to be processed. -->
-- `-embedding_vector`: The embeddings model to use (e.g., "ollama", "openai","huggingface").
+- `-embedding_model`: The embeddings model to use (e.g., "ollama", "openai","huggingface").
 - `-LLM_model`: The LLM model to use for query processing (e.g., "llama3","openai","groq").
 - `-mode`: Mode of operation (e.g., "streaming","generate").
 <!-- - `-local_path`: Path to store the cloned repository. -->

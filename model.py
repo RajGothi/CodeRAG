@@ -24,8 +24,10 @@ def get_LLMModel(model_name = "llama3"):
             model_name="Llama3-8b-8192")
 
     elif model_name == "openai":
-        llm = ChatOpenAI(model="gpt-4o") 
-    
+        llm = ChatOpenAI(model="gpt-4o")
+
+    # elif model_name = "together":
+    #     llm =     
     else:
         print("Please select valid LLM")
     
