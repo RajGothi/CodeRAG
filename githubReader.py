@@ -4,7 +4,7 @@ from git import Repo
 from langchain_community.document_loaders import GitLoader
 from collections import defaultdict
 
-def clone_and_read_gitrepo(git_url,local_path):
+def clone_and_read_gitrepo(git_url):
 
     # loader = GitLoader(
     #     # clone_url=git_url,

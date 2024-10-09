@@ -11,11 +11,11 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Command-line arguments for Streamlit app")
     
     # Define command-line arguments with choices for specific parameters
-    parser.add_argument("--git_url", type=str, default="https://github.com/openai/whisper.git", help="URL of the GitHub repository")
-    parser.add_argument("--embedding_vector", type=str, choices=["huggingface", "openai", "ollama","fireworks"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
+    # parser.add_argument("--git_url", type=str, default="https://github.com/openai/whisper.git", help="URL of the GitHub repository")
+    parser.add_argument("--embedding_model", type=str, choices=["huggingface", "openai", "ollama","fireworks"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
     parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3"], default="groq", help="Type of LLM model (groq, openai, llama3)")
     parser.add_argument("--mode", type=str, choices=["streaming", "generate"], default="streaming", help="Mode of operation (streaming, generate)")
-    parser.add_argument("--local_path", type=str, default="code", help="Local path for the code")
+    # parser.add_argument("--local_path", type=str, default="code", help="Local path for the code")
      
     args = parser.parse_args()
     return args
@@ -51,12 +51,11 @@ def main():
 
 
     if git_url:
-        st.session_state.local_path=args.local_path
 
         if "pipeline" not in st.session_state:
             
             with st.spinner("Cloning repository"):
-                st.session_state.documents, file_type_counts = clone_and_read_gitrepo(git_url = git_url,local_path=st.session_state.local_path)
+                st.session_state.documents, file_type_counts = clone_and_read_gitrepo(git_url = git_url)
 
             st.session_state.chunked_docs = code_chunking(st.session_state.documents)
 
@@ -64,7 +63,7 @@ def main():
 
             with st.spinner("Generating embeddings..."):
                     
-                st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,embedding_name=args.embedding_vector,model_name = args.LLM_model)
+                st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,embedding_name=args.embedding_model,model_name = args.LLM_model)
     
                 print("Vector DB created")
 

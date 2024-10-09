@@ -47,18 +47,20 @@ To start the RAG pipeline, run the following command:
 
 ```bash
 
+streamlit run main.py -- --embedding_model "ollama" --LLM_model "llama3" --mode "streaming"
+
 # streamlit run main.py -- --git_url "https://github.com/openai/whisper.git" --embedding_vector "ollama" --LLM_model "llama3" --mode "streaming" --local_path "code"
 
 
-streamlit run main.py -- --git_url "https://github.com/huggingface/chat-ui" --embedding_vector "ollama" --LLM_model "llama3" --mode "streaming" --local_path "code"
+# streamlit run main.py -- --git_url "https://github.com/huggingface/chat-ui" --embedding_vector "ollama" --LLM_model "llama3" --mode "streaming" --local_path "code"
 
 ```
 
-- `-git_url`: URL of the GitHub repository to be processed.
+<!-- - `-git_url`: URL of the GitHub repository to be processed. -->
 - `-embedding_vector`: The embeddings model to use (e.g., "ollama", "openai","huggingface").
 - `-LLM_model`: The LLM model to use for query processing (e.g., "llama3","openai","groq").
 - `-mode`: Mode of operation (e.g., "streaming","generate").
-- `-local_path`: Path to store the cloned repository.
+<!-- - `-local_path`: Path to store the cloned repository. -->
 
 ### Configuration
 
