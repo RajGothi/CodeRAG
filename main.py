@@ -64,7 +64,7 @@ def main():
             with st.spinner("Generating embeddings..."):
                     
                 # st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,embedding_name=args.embedding_model,model_name = args.LLM_model,repo_name = repo_name)
-                st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,document_chunk_pair = st.session_state.document_chunk_pair,embedding_name=args.embedding_model,model_name = args.LLM_model)
+                st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,document_chunk_pair = st.session_state.document_chunk_pair,embedding_name=args.embedding_model,model_name = args.LLM_model,repo_name=repo_name)
     
                 print("Vector DB created")
 

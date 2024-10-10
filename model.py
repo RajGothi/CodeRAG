@@ -2,7 +2,8 @@
 from dotenv import load_dotenv
 # from langchain_groq import ChatGroq
 from langchain_community.llms import Ollama
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+# from langchain_ollama import ChatOllama
 
 
 load_dotenv()
@@ -18,6 +19,7 @@ def get_LLMModel(model_name = "llama3"):
 
     if model_name == "llama3":
         llm=Ollama(model="llama3")
+        # llm=ChatOllama(model="llama3")
     
     elif model_name == "groq":
         llm=ChatGroq(groq_api_key=groq_api_key,

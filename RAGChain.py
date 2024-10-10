@@ -42,13 +42,21 @@ class RAGPipeline:
                 print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
                 documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
 
-        embedding_model = self.get_embedding(embedding_name)
-
-        vectorsDB=FAISS.from_documents(documents,embedding_model)
+        if os.path.exists(f'store/{repo_name}_embeddings.pickle'):
+                print(f"Embeddings for repo {repo_name} is alredy done.")
+                with open(f'store/{repo_name}_embeddings.pickle', "rb") as f:
+                    vectorsDB = pickle.load(f) 
+        else:
+            print(f"Embedding for repo {repo_name} is ongoing...")
+            embedding_model = self.get_embedding(embedding_name)
+            vectorsDB=FAISS.from_documents(documents,embedding_model)
+            with open(f"store/{repo_name}_embeddings.pickle", "wb") as f:
+                pickle.dump(vectorsDB, f)
 
         self.retriever = vectorsDB.as_retriever(
             search_type="similarity",
-            search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
+            # search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
+            search_kwargs={"k":4, "fetch_k": 10},
         )
         # self.retriever = vectorsDB.as_retriever(
         #     search_type="mmr",
@@ -75,7 +83,7 @@ class RAGPipeline:
                     """You are an AI Github coding assistant designed to help users with queries related to Git repositories.\n 
                 Here is a relevent context:  \n ------- \n  {context} \n ------- \n 
                 Answer the user question based on the above provided context. Ensure any code you provide can be executed \n 
-                with all required imports and variables defined. Structure your answer with a description of the code solution. \n
+                with all required imports and variables defined. Structure your answer with a description of the code solution if code provided. \n
                 """,
                 ),
                 MessagesPlaceholder(variable_name="question"),
@@ -114,11 +122,11 @@ class RAGPipeline:
             context = self.context_list[0][0].page_content
             # similarity_score = self.context_list[0][1]
 
-            # context = ""
-            # for ind,val in enumerate(self.context_list):
-            #     # print(val)
-            #     context += "Context "+str(ind) + " : "
-            #     context += val[0].page_content
+            context = ""
+            for ind,val in enumerate(self.context_list):
+                # print(val)
+                context += "Context "+str(ind) + " : "
+                context += val[0].page_content
 
             # if similarity_score < 0.005:
             #     context = "This context is not confident. " + context
