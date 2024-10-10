@@ -2,12 +2,12 @@ import os
 # from langchain.embeddings import OllamaEmbeddings
 # from langchain_ollama import OllamaEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
-# from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 # from __module_name__ import TogetherEmbeddings
-# from langchain_fireworks import FireworksEmbeddings 
-# from langchain_together import TogetherEmbeddings
+from langchain_fireworks import FireworksEmbeddings 
+from langchain_together import TogetherEmbeddings
 
 # from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -19,11 +19,11 @@ os.environ["TOGETHER_API_KEY"] = os.getenv("TOGETHER_API_KEY")
 
 
 def get_fireworkEmbeddingsVector():
-    embeddings=TogetherEmbeddings(show_progress=True,model="togethercomputer/m2-bert-80M-8k-retrieval")
+    embeddings=FireworksEmbeddings(show_progress=True,model="accounts/fireworks/models/llama-v3p2-3b-instruct")
     return embeddings
 
 def get_togetherEmbeddingsVector():
-    embeddings=FireworksEmbeddings(show_progress=True,model="accounts/fireworks/models/llama-v3p2-3b-instruct")
+    embeddings=TogetherEmbeddings(show_progress=True,model="togethercomputer/m2-bert-80M-8k-retrieval")
     return embeddings
 
 
