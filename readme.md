@@ -17,8 +17,7 @@ Given the complexity of handling code and text together, I conducted extensive a
 8. **RAG Chain Creation**: A RAG chain is built using the prompt, LLM, and output parser. `RAGChain.py`
 9. **Streaming Output**: The output is streamed in real-time as the user queries the repository. `main.py`
 10. **ChatBot UI**: A Streamlit-based chatbot interface is provided, with memory support to remember previous conversations. `main.py`
-
-## Supported Languages
+11. **Testing RAG Pipeline**: A testing file to test RAG Pipeline performance through CMD. `test.py`
 
 ## Installation
 
