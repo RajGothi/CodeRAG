@@ -32,15 +32,15 @@ class RAGPipeline:
 
     def __init__(self, documents, embedding_name, document_chunk_pair = None,model_name="llama",repo_name = 'chat-ui'):
 
-        #Here we have to add contextual Retrieval given an documents...
-        if document_chunk_pair is not None:
-            if os.path.exists(f'store/{repo_name}_retreival.pickle'):
-                print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
-                with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
-                    documents = pickle.load(f) 
-            else:
-                print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
-                documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
+        # #Here we have to add contextual Retrieval given an documents...
+        # if document_chunk_pair is not None:
+        #     if os.path.exists(f'store/{repo_name}_retreival.pickle'):
+        #         print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
+        #         with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
+        #             documents = pickle.load(f) 
+        #     else:
+        #         print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
+        #         documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
 
         if os.path.exists(f'store/{repo_name}_embeddings.pickle'):
                 print(f"Embeddings for repo {repo_name} is alredy done.")
@@ -80,11 +80,9 @@ class RAGPipeline:
             [
                 (
                     "system",
-                    """You are an AI Github coding assistant designed to help users with queries related to Git repositories.\n 
-                Here is a relevent context:  \n ------- \n  {context} \n ------- \n 
-                Answer the user question based on the above provided context. Ensure any code you provide can be executed \n 
-                with all required imports and variables defined. Structure your answer with a description of the code solution if code provided. \n
-                """,
+                    """You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
+                    Context: {context}\n
+                    """,
                 ),
                 MessagesPlaceholder(variable_name="question"),
             ]
@@ -158,7 +156,7 @@ class RAGPipeline:
 
         contexts = ""
         for ind,val in enumerate(self.context_list):
-            print(val)
+            # print(val)
             contexts += "Context "+str(ind) + " : "
             contexts += val[0].page_content
             

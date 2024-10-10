@@ -42,13 +42,21 @@ def get_OpenAIEmbeddingsVector():
 
 # hf_embedding: model train on text and code data...
 def get_HuggingFaceBgeEmbeddingsVector(model_name="Salesforce/codet5p-110m-embedding"):
-    embeddings=HuggingFaceBgeEmbeddings(
-        model_name="BAAI/bge-large-en-v1.5",      #sentence-transformers/all-MiniLM-l6-v2 #BAAI/bge-large-en-v1.5
-        model_kwargs={'device':'cuda'},
-        multi_process=True,
-        encode_kwargs={'normalize_embeddings':True,'show_progress':True},
-        # show_progress=True
+    model_name = "BAAI/bge-large-en-v1.5"  # To create vectors of chunks
+    model_kwargs = {"device": "cuda:0"}
+    encode_kwargs = {"normalize_embeddings": True, 
+                     "show_progress": True}
+    embeddings = HuggingFaceBgeEmbeddings(
+        model_name=model_name, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
     )
+    
+    # embeddings=HuggingFaceBgeEmbeddings(
+    #     model_name="BAAI/bge-large-en-v1.5",      #sentence-transformers/all-MiniLM-l6-v2 #BAAI/bge-large-en-v1.5
+    #     model_kwargs={'device':'cuda:0'},
+    #     multi_process=True,
+    #     encode_kwargs={'normalize_embeddings':True,'show_progress':True},
+    #     # show_progress=True
+    # )
     return embeddings
 
 

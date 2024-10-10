@@ -15,3 +15,5 @@ sentence_transformers
 langchain-objectbox
 langchain-text-splitters
 ollama
+langchain-together
+rank_bm25

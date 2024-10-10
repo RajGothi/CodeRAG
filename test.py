@@ -16,7 +16,7 @@ def main():
     # args = parse_args()
 
     git_url = "https://github.com/huggingface/chat-ui"
-    embedding_model = "ollama" #openai , ollama
+    embedding_model = "huggingface" #openai , ollama
     LLM_model = "llama3" #openai #llama3
     mode = "streaming" #"generate"
     # local_path = "code"
@@ -49,6 +49,10 @@ def main():
             print("Document Chunk pair:",document_chunk_pair[0])
 
             pipeline = RAGPipeline(documents=documents,document_chunk_pair = document_chunk_pair,embedding_name=embedding_model,model_name = LLM_model)
+            
+            while True:
+                query = input("Enter the query: ")
+                print(pipeline.generate(query=query)['response'])
             
         # if input_text := st.chat_input("Write your query here."):
         #     st.session_state.messages.append({"role": "user", "content": input_text})
