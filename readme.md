@@ -49,11 +49,6 @@ To start the RAG pipeline, run the following command:
 
 streamlit run main.py -- --embedding_model "ollama" --LLM_model "llama3" --mode "streaming"
 
-# streamlit run main.py -- --git_url "https://github.com/openai/whisper.git" --embedding_vector "ollama" --LLM_model "llama3" --mode "streaming" --local_path "code"
-
-
-# streamlit run main.py -- --git_url "https://github.com/huggingface/chat-ui" --embedding_vector "ollama" --LLM_model "llama3" --mode "streaming" --local_path "code"
-
 ```
 
 <!-- - `-git_url`: URL of the GitHub repository to be processed. -->
@@ -65,6 +60,10 @@ streamlit run main.py -- --embedding_model "ollama" --LLM_model "llama3" --mode 
 ### Configuration
 
 Add your API keys and environment variables to the `.env` file before running the code.
+The following API keys may be needed:
+- together.ai
+- fireworks.ai
+- openai
 
 ## Tools and Libraries
 
