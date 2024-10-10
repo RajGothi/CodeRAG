@@ -26,7 +26,7 @@ def get_LLMModel(model_name = "llama3"):
             max_tokens=500,
             top_k=20,
             together_api_key=os.getenv("TOGETHER_API_KEY")
-        )
+            )
         # llm=ChatOllama(model="llama3")
     
     elif model_name == "groq":

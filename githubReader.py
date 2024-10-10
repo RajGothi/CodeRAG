@@ -2,6 +2,7 @@ import os
 from glob import glob
 from git import Repo
 from langchain_community.document_loaders import GitLoader
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from collections import defaultdict
 
 def clone_and_read_gitrepo(git_url):
@@ -15,17 +16,26 @@ def clone_and_read_gitrepo(git_url):
     repo_name = git_url.split('/')[-1].replace('.git', '')
     local_path = os.path.join("repos", repo_name)  # Store in a "repos" directory
 
-    if not os.path.exists(local_path):
-        # Initialize GitLoader to clone the repo
-        loader = GitLoader(
-            clone_url=git_url,
-            repo_path=local_path,
-        )
-    else:
-        loader = GitLoader(
-            # clone_url=git_url,
-            repo_path=local_path,
-        )
+    # if not os.path.exists(local_path):
+    #     # Initialize GitLoader to clone the repo
+    #     loader = GitLoader(
+    #         clone_url=git_url,
+    #         repo_path=local_path,
+    #     )
+    # else:
+    #     loader = GitLoader(
+    #         # clone_url=git_url,
+    #         repo_path=local_path,
+    #     )
+    repo = git_url.split("github.com")[-1][1:]
+    # print(repo.split("/")[-1])
+    if not os.path.exists("./repos/"+repo.split("/")[-1]):
+        Repo.clone_from(git_url+".git", "./repos/"+repo.split("/")[-1])
+    
+    
+    loader = DirectoryLoader("./repos/"+repo.split("/")[-1], loader_cls=TextLoader,
+                             exclude=["**/*.png", "**/*.jpg", "**/*.ipynb", "**/*.icns", "**/*.bmp", "**/*.ico", "**/*.ttf"],
+                             use_multithreading=True)  # Customize the glob pattern to match the file types
 
     data = loader.load()
     # extensions = ['txt', 'md', 'markdown', 'rst', 'py', 'js', 'java', 'c', 'cpp', 'cs', 'go', 'rb', 'php', 'scala', 'html', 'htm',
@@ -47,4 +57,3 @@ def clone_and_read_gitrepo(git_url):
     #         file_type_counts[ext] += 1  # Increment the count for the file extension
 
     return data, repo_name
-

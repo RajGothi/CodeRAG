@@ -56,7 +56,7 @@ class RAGPipeline:
         self.retriever = vectorsDB.as_retriever(
             search_type="similarity",
             # search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
-            search_kwargs={"k":4, "fetch_k": 10},
+            search_kwargs={"k":3, "fetch_k": 10},
         )
         # self.retriever = vectorsDB.as_retriever(
         #     search_type="mmr",
@@ -64,7 +64,7 @@ class RAGPipeline:
         # )
 
         self.bm25_retriever = BM25Retriever.from_documents(documents)
-        self.bm25_retriever.k = 4  # Retrieve top 4 results
+        self.bm25_retriever.k = 3  # Retrieve top 4 results
 
         # # print("type of bm25", type(self.bm25_retriever))
 
@@ -92,7 +92,7 @@ class RAGPipeline:
 
         self.config = {"configurable": {"session_id": "abc5"}}
 
-        self.chain = RunnableWithMessageHistory(self.chain, self.get_session_history,input_messages_key="question")        
+        # self.chain = RunnableWithMessageHistory(self.chain, self.get_session_history,input_messages_key="question")        
 
         self.reranker_model = load_reranker_model()
 
@@ -123,7 +123,8 @@ class RAGPipeline:
             context = ""
             for ind,val in enumerate(self.context_list):
                 # print(val)
-                context += "Context "+str(ind) + " : "
+                # context += "Context "+str(ind) + " : "
+                context += "\n"
                 context += val[0].page_content
 
             # if similarity_score < 0.005:

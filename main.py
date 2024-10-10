@@ -13,7 +13,7 @@ def parse_args():
     # Define command-line arguments with choices for specific parameters
     # parser.add_argument("--git_url", type=str, default="https://github.com/openai/whisper.git", help="URL of the GitHub repository")
     parser.add_argument("--embedding_model", type=str, choices=["huggingface", "openai", "ollama","fireworks"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
-    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3"], default="groq", help="Type of LLM model (groq, openai, llama3)")
+    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3"], default="llama3", help="Type of LLM model (groq, openai, llama3)")
     parser.add_argument("--mode", type=str, choices=["streaming", "generate"], default="streaming", help="Mode of operation (streaming, generate)")
     # parser.add_argument("--local_path", type=str, default="code", help="Local path for the code")
      
