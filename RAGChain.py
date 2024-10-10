@@ -1,15 +1,11 @@
-# from langchain_community.chat_models import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-# from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
-    # SystemMessagePromptTemplate,
-    # HumanMessagePromptTemplate,
 )
-from getEmbedding import get_OllamaEmbeddingsVector,get_HuggingFaceBgeEmbeddingsVector,get_OpenAIEmbeddingsVector, get_fireworkEmbeddingsVector
+from getEmbedding import get_OllamaEmbeddingsVector,get_HuggingFaceBgeEmbeddingsVector,get_OpenAIEmbeddingsVector, get_fireworkEmbeddingsVector,get_togetherEmbeddingsVector
 
 from langchain_core.chat_history import (
     BaseChatMessageHistory,
@@ -32,15 +28,15 @@ class RAGPipeline:
 
     def __init__(self, documents, embedding_name, document_chunk_pair = None,model_name="llama",repo_name = 'chat-ui'):
 
-        # #Here we have to add contextual Retrieval given an documents...
-        # if document_chunk_pair is not None:
-        #     if os.path.exists(f'store/{repo_name}_retreival.pickle'):
-        #         print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
-        #         with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
-        #             documents = pickle.load(f) 
-        #     else:
-        #         print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
-        #         documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
+        #Here we have add contextual Retrieval given an documents...
+        if document_chunk_pair is not None:
+            if os.path.exists(f'store/{repo_name}_retreival.pickle'):
+                print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
+                with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
+                    documents = pickle.load(f) 
+            else:
+                print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
+                documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
 
         if os.path.exists(f'store/{repo_name}_embeddings.pickle'):
                 print(f"Embeddings for repo {repo_name} is alredy done.")
@@ -55,8 +51,8 @@ class RAGPipeline:
 
         self.retriever = vectorsDB.as_retriever(
             search_type="similarity",
-            # search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
-            search_kwargs={"k":3, "fetch_k": 10},
+            search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
+            # search_kwargs={"k":3, "fetch_k": 10},
         )
         # self.retriever = vectorsDB.as_retriever(
         #     search_type="mmr",
@@ -64,7 +60,7 @@ class RAGPipeline:
         # )
 
         self.bm25_retriever = BM25Retriever.from_documents(documents)
-        self.bm25_retriever.k = 3  # Retrieve top 4 results
+        self.bm25_retriever.k = 4  # Retrieve top 4 results
 
         # # print("type of bm25", type(self.bm25_retriever))
 
@@ -103,6 +99,8 @@ class RAGPipeline:
             embeddings = get_OllamaEmbeddingsVector()
         elif embedding_name == 'fireworks':
             embeddings = get_fireworkEmbeddingsVector()
+        elif embedding_name == 'together':
+            embeddings = get_togetherEmbeddingsVector()    
         else:
             embeddings = get_OpenAIEmbeddingsVector()
         return embeddings
@@ -158,8 +156,8 @@ class RAGPipeline:
         contexts = ""
         for ind,val in enumerate(self.context_list):
             # print(val)
-            contexts += "Context "+str(ind) + " : "
-            contexts += val[0].page_content
+            context += "\n"
+            context += val[0].page_content
             
         response = self.chain.invoke(
             {"question": [HumanMessage(content=query)], "context": contexts},

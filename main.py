@@ -12,10 +12,9 @@ def parse_args():
     
     # Define command-line arguments with choices for specific parameters
     # parser.add_argument("--git_url", type=str, default="https://github.com/openai/whisper.git", help="URL of the GitHub repository")
-    parser.add_argument("--embedding_model", type=str, choices=["huggingface", "openai", "ollama","fireworks"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
-    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3"], default="llama3", help="Type of LLM model (groq, openai, llama3)")
+    parser.add_argument("--embedding_model", type=str, choices=["huggingface", "openai", "ollama","fireworks","together"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
+    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3","together"], default="llama3", help="Type of LLM model (groq, openai, llama3,together)")
     parser.add_argument("--mode", type=str, choices=["streaming", "generate"], default="streaming", help="Mode of operation (streaming, generate)")
-    # parser.add_argument("--local_path", type=str, default="code", help="Local path for the code")
      
     args = parser.parse_args()
     return args
@@ -64,7 +63,7 @@ def main():
             with st.spinner("Generating embeddings..."):
                     
                 # st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,embedding_name=args.embedding_model,model_name = args.LLM_model,repo_name = repo_name)
-                st.session_state.pipeline = RAGPipeline(documents=st.session_state.documents,document_chunk_pair = st.session_state.document_chunk_pair,embedding_name=args.embedding_model,model_name = args.LLM_model,repo_name=repo_name)
+                st.session_state.pipeline = RAGPipeline(documents=st.session_state.chunked_docs,document_chunk_pair = st.session_state.document_chunk_pair,embedding_name=args.embedding_model,model_name = args.LLM_model,repo_name=repo_name)
     
                 print("Vector DB created")
 

@@ -7,15 +7,11 @@ from collections import defaultdict
 
 def clone_and_read_gitrepo(git_url):
 
-    # loader = GitLoader(
-    #     # clone_url=git_url,
-    #     repo_path="chat-ui",
-    # )
-
     # Extract the repo name from the Git URL (e.g., "chat-ui" from the URL)
     repo_name = git_url.split('/')[-1].replace('.git', '')
-    local_path = os.path.join("repos", repo_name)  # Store in a "repos" directory
-
+    
+    # commented below code because, sometimes branch name is not consistent.
+    # local_path = os.path.join("repos", repo_name)  # Store in a "repos" directory
     # if not os.path.exists(local_path):
     #     # Initialize GitLoader to clone the repo
     #     loader = GitLoader(
@@ -27,33 +23,19 @@ def clone_and_read_gitrepo(git_url):
     #         # clone_url=git_url,
     #         repo_path=local_path,
     #     )
+
     repo = git_url.split("github.com")[-1][1:]
-    # print(repo.split("/")[-1])
     if not os.path.exists("./repos/"+repo.split("/")[-1]):
         Repo.clone_from(git_url+".git", "./repos/"+repo.split("/")[-1])
     
-    
     loader = DirectoryLoader("./repos/"+repo.split("/")[-1], loader_cls=TextLoader,
-                             exclude=["**/*.png", "**/*.jpg", "**/*.ipynb", "**/*.icns", "**/*.bmp", "**/*.ico", "**/*.ttf"],
+                             exclude=["**/*.png", "**/*.jpg", "**/*.icns", "**/*.bmp", "**/*.ico", "**/*.ttf"],
                              use_multithreading=True)  # Customize the glob pattern to match the file types
 
     data = loader.load()
+
     # extensions = ['txt', 'md', 'markdown', 'rst', 'py', 'js', 'java', 'c', 'cpp', 'cs', 'go', 'rb', 'php', 'scala', 'html', 'htm',
     #                'xml', 'json', 'yaml', 'yml', 'ini', 'toml', 'cfg', 'conf', 'sh', 'bash', 'css', 'scss', 'sql', 'gitignore',
     #                 'dockerignore', 'ipynb']
-
-    # Initialize the dictionary to hold counts for each file extension
-    # file_type_counts = defaultdict(int)
-
-    # # Iterate over the loaded data and count file extensions
-    # for doc in data:
-    #     file_path = doc.metadata['source']  # Assuming the file path is stored in metadata
-    #     _, ext = os.path.splitext(file_path)  # Extract file extension
-
-    #     if ext.startswith('.'):
-    #         ext = ext[1:]  # Remove the dot from the extension
-
-    #     if ext in extensions:
-    #         file_type_counts[ext] += 1  # Increment the count for the file extension
 
     return data, repo_name

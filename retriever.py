@@ -73,8 +73,6 @@ def contextual_retieval_chunk(documents_chunk_pair,model_name,repo_name):
     contextual_chunk = []
     json_data = []
 
-    # documents_chunk_pair = documents_chunk_pair[:10]
-
     # load the model here...
     for doc in tqdm(documents_chunk_pair, desc="contextual retrieval preprocessing"):
         document_text = doc['document']
@@ -96,9 +94,6 @@ def contextual_retieval_chunk(documents_chunk_pair,model_name,repo_name):
                 'combine_chunk' : context_chunk.page_content,         
             }
             json_data.append(json_entry)
-        # break
-    
-    # print(contextual_chunk[0])
 
     # Save the json_data to a JSON file
     with open(f"store/{repo_name}_contextual_retrieval_preprocessing.json", 'w') as json_file:
