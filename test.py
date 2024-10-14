@@ -14,7 +14,7 @@ def main():
 
     git_url = "https://github.com/huggingface/chat-ui"
     embedding_model = "huggingface" #openai , ollama
-    LLM_model = "llama3" #openai #llama3
+    LLM_model = "together" #openai #llama3
     mode = "streaming" #"generate"
 
     if git_url:

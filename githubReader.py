@@ -8,27 +8,29 @@ from collections import defaultdict
 def clone_and_read_gitrepo(git_url):
 
     # Extract the repo name from the Git URL (e.g., "chat-ui" from the URL)
-    repo_name = git_url.split('/')[-1].replace('.git', '')
     
     # commented below code because, sometimes branch name is not consistent.
-    # local_path = os.path.join("repos", repo_name)  # Store in a "repos" directory
-    # if not os.path.exists(local_path):
-    #     # Initialize GitLoader to clone the repo
-    #     loader = GitLoader(
-    #         clone_url=git_url,
-    #         repo_path=local_path,
-    #     )
-    # else:
-    #     loader = GitLoader(
-    #         # clone_url=git_url,
-    #         repo_path=local_path,
-    #     )
-
-    repo = git_url.split("github.com")[-1][1:]
-    if not os.path.exists("./repos/"+repo.split("/")[-1]):
-        Repo.clone_from(git_url+".git", "./repos/"+repo.split("/")[-1])
+    try:
+        repo_name = git_url.split('/')[-1].replace('.git', '')
+        local_path = os.path.join("repos", repo_name)  # Store in a "repos" directory
+        if not os.path.exists(local_path):
+            # Initialize GitLoader to clone the repo
+            loader = GitLoader(
+                clone_url=git_url,
+                repo_path=local_path,
+            )
+        else:
+            loader = GitLoader(
+                # clone_url=git_url,
+                repo_path=local_path,
+            )
+            print("Inside Gitloader")
+    except:
+        repo = git_url.split("github.com")[-1][1:]
+        if not os.path.exists("./repos/"+repo.split("/")[-1]):
+            Repo.clone_from(git_url+".git", "./repos/"+repo.split("/")[-1])
     
-    loader = DirectoryLoader("./repos/"+repo.split("/")[-1], loader_cls=TextLoader,
+        loader = DirectoryLoader("./repos/"+repo.split("/")[-1], loader_cls=TextLoader,
                              exclude=["**/*.png", "**/*.jpg", "**/*.icns", "**/*.bmp", "**/*.ico", "**/*.ttf"],
                              use_multithreading=True)  # Customize the glob pattern to match the file types
 

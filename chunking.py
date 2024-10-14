@@ -5,7 +5,7 @@ from langchain_text_splitters import (
     Language,
     RecursiveCharacterTextSplitter,
 )
-
+import json
 
 def code_chunking(documents):
     # Define supported languages and their corresponding extensions
@@ -58,7 +58,7 @@ def code_chunking(documents):
             if language_enum:
                 # print("language_enum  ",language_enum)
                 splitter = RecursiveCharacterTextSplitter.from_language(
-                    language=language_enum, chunk_size=1000, chunk_overlap=0
+                    language=language_enum, chunk_size=5000, chunk_overlap=0
                 )
         else:
             # Use a simple text splitter if the extension is not supported
@@ -75,6 +75,10 @@ def code_chunking(documents):
 
         chunked_docs.extend(text_chunks)
         document_chunk_pair.append(doc_chunk_map)
+
+    # # # Save document_chunk_pair to a JSON file
+    # with open("store/chunking.json", 'w') as f:
+    #     json.dump(document_chunk_pair, f, indent=4)
 
     return chunked_docs,document_chunk_pair
 

@@ -40,6 +40,8 @@ def retrieve_context(query, retriever, reranker_model=None):
         return reranked_docs
 
     else:
+         # Assign a default score of None for documents without reranking
+        retrieved_docs = [(doc, None) for doc in retrieved_docs]
         return retrieved_docs
 
 
@@ -49,7 +51,7 @@ def rerank_docs(reranker_model, query, retrieved_docs):
     return sorted(list(zip(retrieved_docs, scores)), key=lambda x: x[1], reverse=True)
 
 def load_reranker_model(
-    reranker_model_name: str = "BAAI/bge-reranker-large", device: str = "cpu"
+    reranker_model_name: str = "BAAI/bge-reranker-large", device: str = "cuda"
 ) -> CrossEncoder:
     reranker_model = CrossEncoder(
         model_name=reranker_model_name, max_length=512, device=device

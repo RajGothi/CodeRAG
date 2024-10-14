@@ -1,6 +1,4 @@
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
@@ -12,31 +10,35 @@ from langchain_core.chat_history import (
     InMemoryChatMessageHistory,
 )
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage
 from langchain_community.vectorstores import FAISS
 from langchain.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
+from langchain_community.llms import Ollama
+from langchain_core.prompts import PromptTemplate
+
 
 from retriever import RAGException, retrieve_context, load_reranker_model
 from model import get_LLMModel
 from retriever import contextual_retieval_chunk
 import pickle
 import os
+from transformers import AutoTokenizer
+
 
 class RAGPipeline:
 
-    def __init__(self, documents, embedding_name, document_chunk_pair = None,model_name="llama",repo_name = 'chat-ui'):
+    def __init__(self, documents, embedding_name, document_chunk_pair = None,model_name="llama",repo_name = 'chat-ui',isQueryExpansion=True):
 
         #Here we have add contextual Retrieval given an documents...
-        if document_chunk_pair is not None:
-            if os.path.exists(f'store/{repo_name}_retreival.pickle'):
-                print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
-                with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
-                    documents = pickle.load(f) 
-            else:
-                print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
-                documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
+        # if document_chunk_pair is not None:
+        #     if os.path.exists(f'store/{repo_name}_retreival.pickle'):
+        #         print(f"Context retrieval preprocessing for repo {repo_name} is alredy done.")
+        #         with open(f'store/{repo_name}_retreival.pickle', "rb") as f:
+        #             documents = pickle.load(f) 
+        #     else:
+        #         print(f"Context retrieval preprocessing for repo {repo_name} is ongoing...")
+        #         documents = contextual_retieval_chunk(document_chunk_pair,model_name,repo_name)
 
         if os.path.exists(f'store/{repo_name}_embeddings.pickle'):
                 print(f"Embeddings for repo {repo_name} is alredy done.")
@@ -51,7 +53,7 @@ class RAGPipeline:
 
         self.retriever = vectorsDB.as_retriever(
             search_type="similarity",
-            search_kwargs={"k":4, "fetch_k": 10, "lambda_mult": 0.5},
+            search_kwargs={"k":10, "fetch_k": 15, "lambda_mult": 0.5},
             # search_kwargs={"k":3, "fetch_k": 10},
         )
         # self.retriever = vectorsDB.as_retriever(
@@ -60,29 +62,56 @@ class RAGPipeline:
         # )
 
         self.bm25_retriever = BM25Retriever.from_documents(documents)
-        self.bm25_retriever.k = 4  # Retrieve top 4 results
+        self.bm25_retriever.k = 10  # Retrieve top 4 results
 
         # # print("type of bm25", type(self.bm25_retriever))
 
+        # self.retriever = EnsembleRetriever(
+        #     retrievers=[self.bm25_retriever, self.retriever], weights=[0.2, 0.8]
+        # )
+
         self.retriever = EnsembleRetriever(
-            retrievers=[self.bm25_retriever, self.retriever], weights=[0.2, 0.8]
+            retrievers=[self.bm25_retriever, self.retriever], weights=[0.8, 0.2]
         )
 
         llm = get_LLMModel(model_name = model_name)
 
         self.store = {}
 
-        self.prompt_template = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    """You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
-                    Context: {context}\n
-                    """,
-                ),
-                MessagesPlaceholder(variable_name="question"),
-            ]
+        # system_prompt = """
+        #     You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
+        # """
+
+        self.llama3Template = """
+            <|begin_of_text|>
+            <|start_header_id|>system<|end_header_id|>
+            You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
+            <|eot_id|>
+            <|start_header_id|>user<|end_header_id|>
+            # Question: {question} 
+            ---------------------------
+            # Context: {context} 
+
+            <|eot_id|>
+            <|start_header_id|>assistant<|end_header_id|>
+        """
+
+        self.prompt_template = PromptTemplate(
+            input_variables=["question", "context"],
+            template=self.llama3Template
         )
+
+        # self.prompt_template = ChatPromptTemplate.from_messages(
+        #     [
+        #         (
+        #             "system",
+        #             """You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
+        #             Context: {context}\n
+        #             """,
+        #         ),
+        #         MessagesPlaceholder(variable_name="question"),
+        #     ]   
+        # )
 
         self.chain = self.prompt_template | llm | StrOutputParser()
 
@@ -91,6 +120,9 @@ class RAGPipeline:
         # self.chain = RunnableWithMessageHistory(self.chain, self.get_session_history,input_messages_key="question")        
 
         self.reranker_model = load_reranker_model()
+        self.tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B",token = os.getenv("HF_Token"))
+        self.isQueryExpansion = isQueryExpansion
+
 
     def get_embedding(self,embedding_name):
         if embedding_name == 'huggingface':
@@ -113,29 +145,52 @@ class RAGPipeline:
 
 
     def stream(self, query: str):
+        user_query = query
         try:
+            
+            if self.isQueryExpansion is True:
+                query = self.query_expansion(query,model_name = "llama3")
+                print("Similar queries found: ",query)
+
             self.context_list = self.retrieve_contexts(query,re_ranker = True)
-            context = self.context_list[0][0].page_content
+            # context = self.context_list[0][0].page_content
             # similarity_score = self.context_list[0][1]
 
             context = ""
+            totalContextcount = 0
             for ind,val in enumerate(self.context_list):
                 # print(val)
                 # context += "Context "+str(ind) + " : "
-                context += "\n"
-                context += val[0].page_content
+                if ind>3:
+                   break
+                inputs = self.tokenizer.encode_plus(
+                    val[0].page_content,
+                    return_tensors='pt'
+                )
+                token_count = inputs['input_ids'].shape[1]
+                if totalContextcount + token_count < 100000:           
+                    context += "\n"
+                    context += val[0].page_content
+                    totalContextcount += token_count
 
             # if similarity_score < 0.005:
             #     context = "This context is not confident. " + context
         except RAGException as e:
             context, similarity_score = e.args[0], 0
 
+        print("Sent to API")
         for r in self.chain.stream({
-            "question": [HumanMessage(content=query)],
+            "question": user_query,
               "context": context},
                 config=self.config
             ):
             yield r
+        # for r in self.chain.stream({
+        #     "question": [HumanMessage(content=user_query)],
+        #       "context": context},
+        #         config=self.config
+        #     ):
+        #     yield r
     
     def get_context(self):
         return self.context_list
@@ -151,16 +206,37 @@ class RAGPipeline:
             )
 
     def generate(self, query: str) -> dict:
-        self.context_list = self.retrieve_contexts(query,re_ranker = True)
+        if self.isQueryExpansion is True:
+            query = self.query_expansion(query,model_name = "llama3")
+            print("Similar queries found: ",query)
 
+        self.context_list = self.retrieve_contexts(query,re_ranker = True)
+            
         contexts = ""
+        totalContextcount = 0
         for ind,val in enumerate(self.context_list):
             # print(val)
-            context += "\n"
-            context += val[0].page_content
+            if ind>3:
+                break
+            inputs = self.tokenizer.encode_plus(
+                    val[0].page_content,
+                    return_tensors='pt'
+                )
+            token_count = inputs['input_ids'].shape[1]
+            if totalContextcount + token_count < 100000:           
+                contexts += "\n"
+                contexts += val[0].page_content
+                totalContextcount += token_count
+            else:
+                print("We are skipping contexts...")
             
+        # response = self.chain.invoke(
+        #     {"question": [HumanMessage(content=query)], "context": contexts},
+        #     config=self.config,
+        # )
+
         response = self.chain.invoke(
-            {"question": [HumanMessage(content=query)], "context": contexts},
+            {"question": query, "context": contexts},
             config=self.config,
         )
         
@@ -168,5 +244,19 @@ class RAGPipeline:
             "contexts": self.context_list,
             "response": response,
         }
+    
+    def query_expansion(self,query,model_name = "llama3"):
+        prompt = """Let say you are query expansion tool.
 
+        Where given an query you write additional 3 similar question of Query so that it can be helpful to retrieve more relevant context. Only provide questions, no explanation of it. 
+
+        Query: {query}"""
+
+        llm=Ollama(model=model_name)
+        response  = llm(prompt.format(query=query))
+        first_newline_index = response.find('\n')
+
+        # Slice the string after the first occurrence of '\n', As first line is always Here are some questions....
+        response = response[first_newline_index + 1:].strip()
+        return response
         

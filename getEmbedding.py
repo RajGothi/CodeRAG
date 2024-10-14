@@ -21,6 +21,7 @@ os.environ["TOGETHER_API_KEY"] = os.getenv("TOGETHER_API_KEY")
 #ollama embeddings: opensource
 def get_OllamaEmbeddingsVector():
     embeddings=OllamaEmbeddings(show_progress=True,model="llama3")
+    # embeddings=OllamaEmbeddings(show_progress=True,model="codellama:13b")
     # embeddings=OllamaEmbeddings(show_progress=True,model="nomic-embed-text")
     # vectorsDB=FAISS.from_documents(documents,embeddings)
     return embeddings
@@ -31,11 +32,11 @@ def get_OpenAIEmbeddingsVector():
     return embeddings
 
 def get_fireworkEmbeddingsVector():
-    embeddings=FireworksEmbeddings(show_progress=True,model="accounts/fireworks/models/llama-v3p2-3b-instruct")
+    embeddings=FireworksEmbeddings(show_progress=True,model="accounts/fireworks/models/code-llama-34b-instruct")
     return embeddings
 
 def get_togetherEmbeddingsVector():
-    embeddings=TogetherEmbeddings(show_progress=True,model="togethercomputer/m2-bert-80M-8k-retrieval")
+    embeddings=TogetherEmbeddings(model="togethercomputer/m2-bert-80M-8k-retrieval")
     return embeddings
 
 
