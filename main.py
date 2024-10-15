@@ -6,6 +6,8 @@ from RAGChain import RAGPipeline
 import streamlit as st
 import argparse
 import warnings
+import logging
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Command-line arguments for Streamlit app")
@@ -13,7 +15,7 @@ def parse_args():
     # Define command-line arguments with choices for specific parameters
     # parser.add_argument("--git_url", type=str, default="https://github.com/openai/whisper.git", help="URL of the GitHub repository")
     parser.add_argument("--embedding_model", type=str, choices=["huggingface", "openai", "ollama","fireworks","together"], default="huggingface", help="Type of embedding vector (huggingface, openai, ollama)")
-    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3","together","fireworks"], default="llama3", help="Type of LLM model (groq, openai, llama3,together)")
+    parser.add_argument("--LLM_model", type=str, choices=["groq", "openai", "llama3","together","fireworks","claude"], default="llama3", help="Type of LLM model (groq, openai, llama3,together)")
     parser.add_argument("--mode", type=str, choices=["streaming", "generate"], default="streaming", help="Mode of operation (streaming, generate)")
      
     args = parser.parse_args()
@@ -21,6 +23,24 @@ def parse_args():
 
 # Ignore all warnings
 warnings.filterwarnings("ignore")
+
+# Logger setup
+def setup_logger():
+    logger = logging.getLogger("GitHubQueryLogger")
+    logger.setLevel(logging.INFO)
+    # Create a file handler
+    handler = logging.FileHandler("logs/github_query_log.log")
+    handler.setLevel(logging.INFO)
+    # Create a logging format
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler.setFormatter(formatter)
+    # Add the handlers to the logger
+    logger.addHandler(handler)
+    return logger
+
+# Initialize logger
+logger = setup_logger()
+
 
 def main():
 
@@ -51,6 +71,7 @@ def main():
 
     if git_url:
 
+        logger.info(f"Github URL: {git_url}")
         if "pipeline" not in st.session_state:
             
             with st.spinner("Cloning repository"):
@@ -87,6 +108,8 @@ def main():
                     answer = st.session_state.pipeline.stream(query=input_text)
                     response = st.write_stream(answer)
                     context = st.session_state.pipeline.get_context()
+                    logger.info(f"Query: {input_text}")
+                    logger.info(f"Response: {response}")
 
                 # Direct response
                 else:

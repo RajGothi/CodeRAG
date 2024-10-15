@@ -71,7 +71,7 @@ class RAGPipeline:
         # )
 
         self.retriever = EnsembleRetriever(
-            retrievers=[self.bm25_retriever, self.retriever], weights=[0.8, 0.2]
+            retrievers=[self.bm25_retriever, self.retriever], weights=[0.7, 0.3]
         )
 
         llm = get_LLMModel(model_name = model_name)
@@ -82,19 +82,33 @@ class RAGPipeline:
         #     You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
         # """
 
+        # self.llama3Template = """
+        #     <|begin_of_text|>
+        #     <|start_header_id|>system<|end_header_id|>
+        #     You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
+        #     <|eot_id|>
+        #     <|start_header_id|>user<|end_header_id|>
+        #     # Question: {question} 
+        #     ---------------------------
+        #     # Context: {context} 
+
+        #     <|eot_id|>
+        #     <|start_header_id|>assistant<|end_header_id|>
+        # """
+
         self.llama3Template = """
-            <|begin_of_text|>
-            <|start_header_id|>system<|end_header_id|>
-            You are software engineer expert for understanding github code repositories and question-answering tasks. Use the following pieces of given context to answer the question. If you don't know the answer, just say that you don't know.\n
-            <|eot_id|>
-            <|start_header_id|>user<|end_header_id|>
+            Instructions : 
+            You are a software engineering expert for understanding github code repositories and question-answering tasks on given code repositories. Use the following pieces of given context which include both text and code to answer the question. If you don't know the answer, just say that you don't know.\n
+            -------------------------------
+            User:
             # Question: {question} 
             ---------------------------
             # Context: {context} 
+            ---------------------------
+            
+            Answer:
 
-            <|eot_id|>
-            <|start_header_id|>assistant<|end_header_id|>
-        """
+            """
 
         self.prompt_template = PromptTemplate(
             input_variables=["question", "context"],
@@ -121,7 +135,8 @@ class RAGPipeline:
 
         self.reranker_model = load_reranker_model()
         self.tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B",token = os.getenv("HF_Token"))
-        self.isQueryExpansion = isQueryExpansion
+        # self.isQueryExpansion = isQueryExpansion
+        self.isQueryExpansion = True
 
 
     def get_embedding(self,embedding_name):
@@ -161,15 +176,15 @@ class RAGPipeline:
             for ind,val in enumerate(self.context_list):
                 # print(val)
                 # context += "Context "+str(ind) + " : "
-                if ind>3:
-                   break
+                # if ind>5:
+                #    break
                 inputs = self.tokenizer.encode_plus(
                     val[0].page_content,
                     return_tensors='pt'
                 )
                 token_count = inputs['input_ids'].shape[1]
                 if totalContextcount + token_count < 100000:           
-                    context += "\n"
+                    context += "----------------------------------\n\n"
                     context += val[0].page_content
                     totalContextcount += token_count
 
@@ -224,7 +239,7 @@ class RAGPipeline:
                 )
             token_count = inputs['input_ids'].shape[1]
             if totalContextcount + token_count < 100000:           
-                contexts += "\n"
+                context += "----------------------------------\n\n"
                 contexts += val[0].page_content
                 totalContextcount += token_count
             else:

@@ -6,6 +6,7 @@ from langchain_together import Together
 from langchain_openai import ChatOpenAI
 # from langchain_ollama import ChatOllama
 from langchain_fireworks import Fireworks 
+from langchain_anthropic import ChatAnthropic
 
 load_dotenv()
 import os
@@ -39,6 +40,19 @@ def get_LLMModel(model_name = "llama3"):
             )  
     elif model_name == "fireworks":
         llm = Fireworks(api_key=os.getenv("FIREWORKS_API_KEY"),model = 'accounts/fireworks/models/code-llama-70b-instruct')
+    
+    elif model_name == "claude":
+        llm = ChatAnthropic(
+            model="claude-3-5-sonnet-20240620",
+            temperature=0,
+            max_tokens=2048,
+            timeout=None,
+            max_retries=2,
+            api_key=os.getenv("CLAUDE_API_KEY"),
+            # base_url="...",
+            # other params...
+        )
+    
     else:
         print("Please select valid LLM")
     

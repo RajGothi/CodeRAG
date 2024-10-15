@@ -8,6 +8,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 # from __module_name__ import TogetherEmbeddings
 from langchain_fireworks import FireworksEmbeddings 
 from langchain_together import TogetherEmbeddings
+# from langchain_voyageai import VoyageAIEmbeddings
 
 # from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -20,7 +21,8 @@ os.environ["TOGETHER_API_KEY"] = os.getenv("TOGETHER_API_KEY")
 
 #ollama embeddings: opensource
 def get_OllamaEmbeddingsVector():
-    embeddings=OllamaEmbeddings(show_progress=True,model="llama3")
+    # embeddings=OllamaEmbeddings(show_progress=True,model="llama3")
+    embeddings=OllamaEmbeddings(show_progress=True,model="unclemusclez/jina-embeddings-v2-base-code")
     # embeddings=OllamaEmbeddings(show_progress=True,model="codellama:13b")
     # embeddings=OllamaEmbeddings(show_progress=True,model="nomic-embed-text")
     # vectorsDB=FAISS.from_documents(documents,embeddings)
